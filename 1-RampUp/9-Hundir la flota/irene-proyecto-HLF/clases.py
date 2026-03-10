@@ -38,8 +38,7 @@ class Jugador: # creo una clase Jugador para diferenciar al usuario y al ordenad
                 if tablero_disparos[fila, columna] == " ": # para que la máquina no repita miramos si en el tablero de disparos de la máquina, esa casilla está vacía (" "). si está vacía, significa que la máquina nunca disparó ahí
                     print(f"El ordenador dispara a {chr(fila + 65)}{columna + 1}") # ahora sumamos 1 porque el ordenador la elegirá con las coordenadas de python
                     return fila, columna # devuelvo las coordenadas en índices de python 
-
-    
+ 
 
 class Tablero:
     def __init__(self, id_jugador, barcos):
@@ -84,12 +83,20 @@ class Tablero:
         else:
             tablero_a_mostrar = self.tablero_disparos
 
-        print("    " + " ".join(str(i) for i in range(10))) # printeo el encabezado de columnas
-        print("   " + "-" * 21) # pongo una línea para separar visualmente el número de las columnas y el resto del tablero
-
+        encabezado = "   |" + "|".join(f"{i:^3}" for i in range(1, 11)) + "|"
+        print(encabezado)
+        print("   +" + "---+" * 10) # pongo para que salga el tablero como una cuadrícula (este crea la cuadrícula superior)
+        
         for i in range(10): # printeo cada fila con su número delante ## Recorre cada fila del tablero, y con el join construye una cadena con todas sus casillas separadas por espacios, y muéstrala junto al número de fila para que el tablero quede bien formateado ##
-            fila_str = " ".join(tablero_a_mostrar[i, j] for j in range(10))
-            print(f"{chr(65+i)} | {fila_str}") # pongo una barra vertical para separar el número de fila con el resto del tablero
+            letra_fila = chr(65 + i)  # convierto el índice de fila en letra
+            fila_str = f" {letra_fila} |" # pongo una barra vertical para separar el nombre de las filas del resto
+            for j in range(10): # j como índice de la columna
+                celda = tablero_a_mostrar[i, j] # obtengo el contenido de la casilla en [fila i, columna j]
+                contenido = celda if celda != " " else " "
+                contenido = f" {contenido} "   # fuerza ancho fijo de 3 caracteres
+                fila_str += contenido + "|"
+            print(fila_str) # printeo la fila completa ya construida
+            print("   +" + "---+" * 10) # printeo la línea inferior de la cuadrícula para esa fila
 
 
     def disparar(self, tablero_rival, jugador):
@@ -100,8 +107,13 @@ class Tablero:
             if self.tablero_disparos[fila, columna] != " ": # compruebo si el jugador tiene un disparo registrado en tablero_disparos. Si ya estaba, obligo a elegir otra coordenada
                 print("Ya disparaste ahí. Prueba con otra coordenada.")
                 continue # vuelvo al inicio del bucle para elegir otra
+            if tablero_rival.tablero[fila, columna] in ("X", "O"): # evitar disparar a casillas ya impactadas en el tablero real del rival
+                print("Esa casilla ya fue disparada antes. Elige otra.")
+                continue
             if tablero_rival.tablero[fila, columna] != " ": # si en el tablero del rival no hay un espacio en blanco, significa que había un barco, entonces es impacto
                 print("¡Tocado!") # si no hay nada,
+                if jugador.tipo == "maquina":
+                    print(f"La máquina te dio en {chr(fila + 65)}{columna + 1}.")
                 letra_original = tablero_rival.tablero[fila, columna] # guardo la letra original antes de sobreescribirla
                 self.tablero_disparos[fila, columna] = "X" # marco la 'x' del impacto al barco en el tablero de disparos del jugador
                 tablero_rival.tablero[fila, columna] = "X" # marco la 'x' en el tablero del rival
@@ -109,15 +121,20 @@ class Tablero:
                 jugador.ultima_columna = columna 
                 if self.barco_hundido(tablero_rival, letra_original): # uso el método creado para comprobar si ese disparo hundió el barco entero
                     print("¡Tocado y hundido!")
+                    if jugador.tipo == "maquina":
+                        print(f"La máquina te dio en {chr(fila + 65)}{columna + 1} y hundió uno de tus barcos.")
+                    if jugador.tipo == "usuario":
+                        print(f"Hundiste un barco enemigo en {chr(fila + 65)}{columna + 1}.")
                 return True # devuelvo True para indicar el impacto (jugador repite turno)
             else: # si hay espacio es que es agua
                 print("¡Agua!")
+                if jugador.tipo == "maquina":
+                    print("La máquina falló, te toca.")
                 self.tablero_disparos[fila, columna] = "O" # marcamos 'o' en tablero_disparos del jugador
                 jugador.ultima_fila = fila # guardo la última coordenada disparada
                 jugador.ultima_columna = columna
                 return False # devuelvo False para indicar que fue agua y se cambia el turno
    
-        
     def barco_hundido(self, tablero_rival, letra_barco):
         '''este método comprueba si el disparo hundió un barco. usa la letra del barco en la casilla impactada
         y mira si quedan más casillas con esa misma letra en el tablero del rival.
@@ -136,7 +153,6 @@ class Tablero:
     # significa que todavía hay partes del barco sin impactar.
     # En ese caso, el barco no está hundido.
         return False # si aún queda alguna casilla con esa letra, el barco no está hundido
-
 
     def todos_hundidos(self, tablero_rival):
         ''' recorre el tablero del rival, si encuentra cualquier letra, significa que aún queda barco,

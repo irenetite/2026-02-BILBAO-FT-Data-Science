@@ -34,17 +34,20 @@ while True:
 
 
     if turno == "usuario": # muestro los tableros del usuario al empezar su turno
-        print("\nTu tablero:")
+        print("\n===== TU TABLERO ======")
         tablero_usuario.mostrar(modo="real")
-        print("\nTus disparos al enemigo:")
+        print()
+        print("\n===== TUS DISPAROS =====")
         tablero_usuario.mostrar(modo="disparos")
         print()
 
         while True: # menú para el jugador
             opcion = menu_jugador()
             if opcion == "1":
-                tablero_usuario.disparar(tablero_maquina, jugador_usuario)
-                break  # sales del menú y termina tu turno si fallas
+                acierto = tablero_usuario.disparar(tablero_maquina, jugador_usuario)
+                if not acierto:
+                    turno = "maquina"
+                    break  # sales del menú y termina tu turno si fallas
             elif opcion == "2":
                 print("\nTu tablero:")
                 tablero_usuario.mostrar(modo="real")
@@ -67,8 +70,9 @@ while True:
     else: # turno de la máquina
         print("La máquina está disparando...\n")
 
-        tablero_maquina.disparar(tablero_usuario, jugador_maquina)
-
+        acierto = tablero_maquina.disparar(tablero_usuario, jugador_maquina)
+        if not acierto:
+            turno = "usuario"
         if tablero_maquina.todos_hundidos(tablero_usuario): # ganó la máquina?
             print("\n💀💀LA MÁQUINA GANÓ💀💀 Todos tus barcos están hundidos.")
             break
