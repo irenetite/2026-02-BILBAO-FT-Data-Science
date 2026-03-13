@@ -15,3 +15,4 @@ def menu_jugador():
         else:
             print("Entrada no válida. Debes elegir un número del 1 al 4.")
 
+

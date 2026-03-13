@@ -2,16 +2,16 @@ import numpy as np
 import random
 from variables import filas_por_letras
 
-class Jugador: # creo una clase Jugador para diferenciar al usuario y al ordenador
+class Jugador: # creo una clase Jugador para diferenciar al jugador y al ordenador
     def __init__(self, nombre, tipo):
         self.nombre = nombre # nombre del jugador u ordenador
-        self.tipo = tipo # usuario o máquina
+        self.tipo = tipo # jugador o máquina
     def coordenadas(self, tablero_disparos=None):
         '''añado el parámetro 'tablero_disparos' para que la máquina pueda consultar
-        el tablero donde guarda sus disparos anteriores. El usuario no lo usa,
+        el tablero donde guarda sus disparos anteriores. El jugador no lo usa,
         pero la máquina sí lo necesita para evitar repetir coordenadas'''
-        if self.tipo == "usuario": # si es el usuario, pido coordenadas manualmente
-            while True:  # como el usuario puede meter coordenadas erróneas, voy a hace run while que se repite hasta que el usuario meta coordenadas válidas
+        if self.tipo == "jugador": # si es el jugador, pido coordenadas manualmente
+            while True:  # como el jugador puede meter coordenadas erróneas, voy a hace run while que se repite hasta que el jugador meta coordenadas válidas
                 coord = input("Introduce las coordenadas de tu disparo (ej: B4, F10): ").upper().strip() # lo pido así porque en el juego, de toda la vida, se han dado las coordenadas por letra y número
                 if len(coord) < 2: # longitud mínima, al menos 2 caracteres de letra + número
                     print("No es válido, usa formato como B4 o F10.")
@@ -29,7 +29,7 @@ class Jugador: # creo una clase Jugador para diferenciar al usuario y al ordenad
                     print("La columna debe estar entre el 1 y el 10.")
                     continue
                 fila = filas_por_letras[letra] # Si todo es válido, convierto letra a índice para que lo entienda python
-                columna = int(numero) - 1 # resto 1 porque quiero que el usuario no se líe, ya que para él lo natural es que las columnas no empiecen por 0, sino por 1
+                columna = int(numero) - 1 # resto 1 porque quiero que el jugador no se líe, ya que para él lo natural es que las columnas no empiecen por 0, sino por 1
                 return fila, columna # devuelvo las coordenadas en índices de python           
         else: # si es la máquina, elige coordenadas aleatorias
             while True: # la máquina elegirá coordenadas aleatorias, pero comprobando antes que no haya disparado ya en esa casilla
@@ -99,11 +99,12 @@ class Tablero:
             print("   +" + "---+" * 10) # printeo la línea inferior de la cuadrícula para esa fila
 
 
-    def disparar(self, tablero_rival, jugador):
+    def disparar(self, tablero_rival, jugador, fila=None, columna=None):
         ''' voy a crear un método disparar que gestionará
         cuando los jugadores hagan un disparo al tablero del rival'''
         while True: # mantengo un bucle para obligar a repetir si el disparo ya se hizo antes
-            fila, columna = jugador.coordenadas(self.tablero_disparos) # la máquina necesita recibir el tablero de disparos para no repetir disparos
+            if jugador.tipo == "maquina":
+                fila, columna = jugador.coordenadas(self.tablero_disparos) # la máquina necesita recibir el tablero de disparos para no repetir disparos
             if self.tablero_disparos[fila, columna] != " ": # compruebo si el jugador tiene un disparo registrado en tablero_disparos. Si ya estaba, obligo a elegir otra coordenada
                 print("Ya disparaste ahí. Prueba con otra coordenada.")
                 continue # vuelvo al inicio del bucle para elegir otra
@@ -123,7 +124,7 @@ class Tablero:
                     print("¡Tocado y hundido!")
                     if jugador.tipo == "maquina":
                         print(f"La máquina te dio en {chr(fila + 65)}{columna + 1} y hundió uno de tus barcos.")
-                    if jugador.tipo == "usuario":
+                    if jugador.tipo == "jugador":
                         print(f"Hundiste un barco enemigo en {chr(fila + 65)}{columna + 1}.")
                 return True # devuelvo True para indicar el impacto (jugador repite turno)
             else: # si hay espacio es que es agua
@@ -131,6 +132,7 @@ class Tablero:
                 if jugador.tipo == "maquina":
                     print("La máquina falló, te toca.")
                 self.tablero_disparos[fila, columna] = "O" # marcamos 'o' en tablero_disparos del jugador
+                tablero_rival.tablero[fila, columna] = "O"  # tablero real del rival
                 jugador.ultima_fila = fila # guardo la última coordenada disparada
                 jugador.ultima_columna = columna
                 return False # devuelvo False para indicar que fue agua y se cambia el turno
