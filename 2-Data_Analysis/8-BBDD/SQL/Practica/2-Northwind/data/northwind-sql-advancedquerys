@@ -1,0 +1,101 @@
+-- Which customers have never made an order;
+SELECT  C.CustomerID,
+		C.CompanyName,
+		COUNT(O.OrderID) AS [Total Count of Orders]
+FROM Customers C
+	LEFT JOIN Orders O ON C.CustomerID = O.CustomerID
+GROUP BY C.CustomerID, C.CompanyName
+HAVING COUNT(O.OrderID) = 0; --no hay clientes recogidos que no hayan hecho pedidos
+
+
+
+-- Returns Customers from Bern, Berlin and Bergamo
+SELECT * FROM Customers
+WHERE City LIKE 'ber%'; -- LIKE EES UNA FORMA DE PONER LOS FILTROS, DIGO QUE EMPIECE POR BER
+-- Returns Customers from Bruxelles, Resende, Buenos Aires etc.
+SELECT * FROM Customers
+WHERE City LIKE '%es%';  
+-- Returns Customers with regions CA and WA
+select *
+from Customers
+where Region like '_e%'; --SIGNIFICA SOLO UN CARACTER POR DELANTE DE LA A
+
+
+
+
+-- Find the total price for order with orderid = 10266 and productID = 12
+SELECT ROUND((UnitPrice * Quantity * (1 - Discount)), 2), *
+FROM [Order Details]
+WHERE OrderID = 10266;
+
+
+
+-- Create a temporary table that contains the id of each order and the total revenues of that order
+-- En SQLite usamos CREATE TEMP TABLE (o TEMPORARY)
+CREATE TEMP TABLE tempFinalPrices AS
+SELECT 
+    O.OrderID, 
+    SUM(ROUND((UnitPrice * Quantity * (1 - Discount)), 2)) AS [Final Price]
+FROM Orders O
+	INNER JOIN [Order Details] OD ON O.OrderID = OD.OrderID
+GROUP BY O.OrderID;
+
+SELECT * FROM tempFinalPrices;
+
+DROP TABLE tempFinalPrices; -- la borro porque no la quiero permanente en la base de datos porque es para un consulta concreta que necsitaba
+
+
+
+-- Create a temporary table that contains the id of each order and the total revenues of that order
+-- En SQLite usamos CREATE TEMP TABLE (o TEMPORARY)
+CREATE TEMP TABLE tempFinalPrices AS
+SELECT 
+    O.OrderID, 
+    SUM(ROUND((UnitPrice * Quantity * (1 - Discount)), 2)) AS [Final Price]
+FROM Orders O
+	INNER JOIN [Order Details] OD ON O.OrderID = OD.OrderID
+GROUP BY O.OrderID;
+
+SELECT * FROM tempFinalPrices;
+
+DROP TABLE tempFinalPrices;
+
+
+
+
+-- How many objects has each customer from Canada, UK and USA ordered each year?
+SELECT C.CompanyName, C.Country, strftime(O.OrderDate) AS [Year], SUM( OD.Quantity ) [Total Quantity]
+FROM Customers C
+	INNER JOIN Orders O ON C.CustomerID = O.CustomerID
+	INNER JOIN [Order Details] OD ON O.OrderID = OD.OrderID
+WHERE C.Country IN ('UK', 'USA', 'Canada')
+GROUP BY C.CompanyName, strftime(O.OrderDate), C.Country
+ORDER BY C.CompanyName, strftime(O.OrderDate);
+
+
+
+
+-- Find the name of the company that placed order 10290.
+SELECT CompanyName
+FROM Customers
+WHERE CustomerID = (SELECT CustomerID
+			FROM Orders
+			WHERE OrderID = 10290);
+
+
+
+-- Find the Companies that placed orders in 2016
+SELECT CompanyName
+FROM Customers
+WHERE CustomerID IN (SELECT CustomerID
+			FROM Orders
+			WHERE OrderDate BETWEEN '2016-01-01' AND '2016-12-31');
+
+
+
+CREATE VIEW [Current Product List] AS
+SELECT ProductID,ProductName
+FROM Products
+WHERE Discontinued=0;
+
+SELECT * FROM [Current Product List];

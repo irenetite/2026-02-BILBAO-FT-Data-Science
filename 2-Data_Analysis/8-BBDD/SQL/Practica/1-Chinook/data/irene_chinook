@@ -1,0 +1,171 @@
+--PRIMERA PARTE
+
+--1.Obtén los clientes de Brasil
+SELECT * 
+FROM customers
+WHERE country = "Brazil";
+
+
+--2.Obtén los empleados que son agentes de ventas
+SELECT DISTINCT employees.Title
+FROM employees;
+
+SELECT employees.FirstName, employees.LastName
+FROM employees
+WHERE Title = 'Sales Support Agent' OR Title = 'Sales Manager';
+
+
+--3.Obtén las canciones de ‘AC/DC’
+SELECT tracks.Name AS Nombre_cancion,
+artists.Name AS Nombre_artista,
+albums.title as Nombre_album
+FROM tracks
+INNER JOIN albums ON  albums.AlbumId = tracks.AlbumId
+INNER JOIN artists ON artists.ArtistId = albums.ArtistId
+WHERE artists.Name = "AC/DC";
+
+
+--andoni
+SELECT *
+FROM tracks
+WHERE composer = 'AC/DC';
+
+
+
+--4.Obtén los campos de los clientes que no sean de USA: Nombre completo, ID, País
+--SELECT customers.country
+--FROM customers
+--WHERE country <> 'USA';
+
+
+--5.Obtén los empleados que son agentes de ventas: Nombre completo, Dirección (Ciudad, Estado, País) y email
+SELECT FirstName || ' ' || LastName AS FullName,
+City, State, Country, Email
+FROM employees
+WHERE Title = "Sales Support Agent";
+
+
+--6.Obtén una lista con los países no repetidos a los que se han emitido facturas
+SELECT DISTINCT BillingCountry
+FROM invoices;
+
+
+--7.Obtén una lista con los estados de USA no repetidos de donde son los clientes y cuántos clientes en cada uno 
+SELECT DISTINCT State,
+Count(customerid) AS N_clientes
+FROM customers
+WHERE country = 'USA'
+GROUP BY state
+ORDER BY 2 DESC; --EL 2 ES PORQUE COGE EL SEGUNDO VALOR DEL SELECT, PODÍA PONER GROUP BY N_CLIENTES DESC;
+
+
+--8.Cuántos artículos tiene la factura 37
+SELECT SUM(quantity) AS NumArticulos --uso SUM y no COUNT porque si hubiera una cantidad mayor que 1 y ano me sirve
+FROM invoice_items
+WHERE InvoiceId = 37;
+
+
+--9.Cuántas canciones tiene ‘AC/DC’
+SELECT COUNT(*) AS NumCanciones
+FROM tracks
+    INNER JOIN albums ON tracks.AlbumId = albums.AlbumId
+    INNER JOIN artists ON albums.ArtistId = artists.ArtistId
+WHERE artists.Name = 'AC/DC';
+
+
+--10.Cuántos artículos tiene cada factura
+SELECT InvoiceId, SUM(quantity) AS NumArticulos
+FROM invoice_items
+GROUP BY InvoiceId
+ORDER BY NumArticulos DESC;
+
+
+--11.Cuántas facturas hay de cada país
+SELECT BillingCountry, COUNT(invoiceid) AS NumFacturas
+FROM invoices
+GROUP BY BillingCountry
+ORDER BY NumFacturas DESC;
+
+
+--12.Cuántas facturas ha habido en 2009 y 2011
+SELECT strftime('%Y', InvoiceDate) AS Año,
+COUNT(invoiceid) AS NumFacturas
+FROM invoices
+WHERE Año IN ('2009', '2011')
+GROUP BY Año;
+
+
+--13.Cuántas facturas ha habido entre 2009 y 2011
+
+SELECT COUNT(invoiceid) AS NumFacturas
+FROM invoices
+WHERE strftime('%Y', invoices.InvoiceDate) BETWEEN '2009' AND '2011';
+
+
+--14.Cuántas clientes hay de España y de Brasil
+
+SELECT Country, COUNT(customerid) AS NumClientes
+FROM customers
+WHERE Country IN ('Spain', 'Brazil')
+GROUP BY Country;
+
+
+
+--15.Obtén las canciones que su título empieza por ‘You’
+
+SELECT tracks.Name
+FROM tracks
+WHERE tracks.Name LIKE 'You%';
+
+
+
+--SEGUNDA PARTE
+--1.Facturas de Clientes de Brasil, Nombre del cliente, Id de factura, fecha de la factura y el país de la factura
+
+SELECT customers.FirstName || ' ' || customers.LastName AS NombreCliente,
+invoices.InvoiceId, invoices.InvoiceDate, invoices.BillingCountry
+FROM customers
+INNER JOIN invoices ON customers.CustomerId = invoices.CustomerId
+WHERE customers.Country = 'Brazil';
+
+
+--2.Obtén cada factura asociada a cada agente de ventas con su nombre completo
+
+SELECT employees.FirstName || ' ' || employees.LastName AS Agente,
+invoices.InvoiceId
+FROM employees
+    INNER JOIN customers ON employees.EmployeeId = customers.SupportRepId
+    INNER JOIN invoices ON customers.CustomerId = invoices.CustomerId;
+
+
+
+--3.Obtén el nombre del cliente, el país, el nombre de la gente y el total
+
+SELECT employees.FirstName || ' ' || employees.LastName AS NombreEmpleado,
+invoices.invoiceid;
+
+   
+ 
+--4.Obtén cada artículo de la factura con el nombre de la canción
+
+   
+SELECT ii.invoiceid, ii.trackid,
+t.name AS Nombre_cancion
+FROM invoice_items as ii
+INNER JOIN tracks as t ON ii.trackid = t.trackid;
+
+
+--5.Muestra todas las canciones con su nombre, formato, álbum y género
+
+    
+--6.Cuántas canciones hay en cada playlist
+
+
+--7.Cuánto ha vendido cada empleado
+
+
+--8.¿Quién ha sido el agente de ventas que más ha vendido en 2009?
+
+
+--9.¿Cuáles son los 3 grupos que más han vendido?
+
