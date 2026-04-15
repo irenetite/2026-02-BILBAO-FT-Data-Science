@@ -1,4 +1,4 @@
-### Ejercicio 1: Restaurantes
+> ### Ejercicio 1: Restaurantes
 
 READ
 ----
@@ -84,7 +84,6 @@ READ
     {"restaurant_id" : 1,"name":1,"address":1,"coord":1}
     );
 
-
     CREATE
 
 ---
@@ -101,7 +100,6 @@ READ
     restaurant_id:"873683997" }
     )
 
-
     UPDATE
 
 ---
@@ -112,7 +110,6 @@ READ
 15. Actualiza el nombre del restaurante "Wild Asia" por "Wild Wild West"
     db["2026-02-test"].updateOne({"name": "Wild Asia"},
     {$set:{"name": "Wild Wild West"}});
-
 
     DELETE
 
