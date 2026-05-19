@@ -8,7 +8,7 @@ import os
 import flask
 from flask import request, jsonify
 
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__)) # hace imports y se coloca en el directorio
 
 data = pd.read_csv('data/Advertising.csv', index_col=0)
 
@@ -40,7 +40,7 @@ pickle.dump(model, open('ad_model.pkl', 'wb'))
 
 
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+app.config["DEBUG"] = True # cuando tengo la versión buena lo cambio a False (cuando esté en producción)
 
 @app.route('/', methods=['GET'])
 def hello(): # Ligado al endopoint "/" o sea el home, con el método GET
@@ -83,5 +83,9 @@ def retrain(): # Rutarlo al endpoint '/api/v1/retrain/', metodo GET
         return f"Model retrained. New evaluation metric RMSE: {str(rmse)}, MAPE: {str(mape)}"
     else:
         return f"New data for retrain NOT FOUND. Nothing done!"
+    
+    
+# hago un concat 
+    
     
 app.run()
